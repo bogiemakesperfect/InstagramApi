@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hadilan/views/instagram_login_page.dart';
 
 class HomePage extends StatefulWidget {
-  final bool data;
-  const HomePage({required this.data,super.key});
+  
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("Home Page Veri= ${widget.data}");
+    
   }
   
   
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
                     
                     Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => InstagramLoginPage(dataiki: widget.data,)),
+                    MaterialPageRoute(builder: (context) => InstagramLoginPage()),
                     
                   );
                  

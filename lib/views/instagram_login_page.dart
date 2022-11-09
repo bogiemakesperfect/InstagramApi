@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:hadilan/main.dart';
+import 'package:hadilan/services/proxy.dart';
 
 
 import 'package:hadilan/views/yap%C4%B1ld%C4%B1.dart';
@@ -12,16 +14,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class InstagramLoginPage extends StatefulWidget {
-  final bool dataiki;
-  const InstagramLoginPage({ required this.dataiki,super.key});
+  
+  const InstagramLoginPage({super.key});
+  
 
   @override
   State<InstagramLoginPage> createState() => _InstagramLoginPageState();
 }
 
 class _InstagramLoginPageState extends State<InstagramLoginPage> {
+
       final GlobalKey webViewKey = GlobalKey();
-    
+      CookieManager cookieManager = CookieManager.instance();
       InAppWebViewController? webViewController;
       InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -38,6 +42,30 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
           
 
           
+          Future<void> checklogged() async {
+            SharedPreferences pref =await SharedPreferences.getInstance();
+            print("-----------------------");
+            print(pref.getString("csrftoken"));
+            print(pref.getString("sessionid"));
+            print(pref.getString("ds_user_id"));
+
+             print("-----------------------");
+            if(pref.getBool("logged") == false){
+               print("****************************************************************");
+            }
+            if(pref.getBool("logged") == true){
+              
+              pref.clear();
+              cookieManager.deleteAllCookies();
+               print("-----------------------");
+            print(pref.getString("csrftoken"));
+            print(pref.getString("sessionid"));
+            print(pref.getString("ds_user_id"));
+             print("-----------------------");
+            }
+            
+
+            }
           
           
          
@@ -50,13 +78,10 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
       @override
       void initState() {
         super.initState();
-        //showCookies();
-        //showcokiler();
+       
+        checklogged();
         
-        if(widget.dataiki == true){
-                          cookieManager.deleteAllCookies();
-                          //print("instagram login page veri = ${widget.dataiki}");
-                        }
+        
         //cookieManager.deleteAllCookies();
         pullToRefreshController = PullToRefreshController(
           options: PullToRefreshOptions(
@@ -78,7 +103,15 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
         super.dispose();
         
       }
-      CookieManager cookieManager = CookieManager.instance();
+
+       @override
+          void deactivate() {
+            // TODO: implement deactivate
+            super.deactivate();
+            print("------------------deactivate------------------");
+            
+          }
+      
        // cookie list 
       
       
@@ -86,25 +119,54 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
      
       
       var Cokiler = ["","",""];
-      void setCookiess(){
+      Future<void> setCookiess() async {
+        SharedPreferences pref =await SharedPreferences.getInstance();
         cookieManager.getCookies(url: Uri.parse("https://www.instagram.com")).then((value){
           for (var element in value) { 
             if(element.name == "sessionid"){
-              Cokiler[0] = element.value;
+              pref.setString("sessionid", element.value);
             }
             if(element.name == "csrftoken"){
-              Cokiler[1] = element.value;
+              pref.setString("csrftoken", element.value);
             }
             if(element.name == "ds_user_id"){
-              Cokiler[2] = element.value;
+              pref.setString("ds_user_id", element.value);
             }
+            if(element.name == "rur"){
+              pref.setString("rur", element.value);
+            }
+            if(element.name == "mid"){
+              pref.setString("mid", element.value);
+            } 
+            if(element.name == "datr"){
+              pref.setString("datr", element.value);
+            }
+            if(element.name == "shbid"){
+              pref.setString("shbid", element.value);
+            }
+            if(element.name == "shbts"){
+              pref.setString("shbts", element.value);
+            }
+            if(element.name == "dpr"){
+              pref.setString("dpr", element.value);
+            }
+            if(element.name == "ig_did"){
+              pref.setString("ig_nrcb", element.value);
+            }
+            if(element.name == "ig_nrcb"){
+              pref.setString("ig_nrcb", element.value);
+            }
+            
+
           }
  
         });
+          
+          
       }
-    
+       
         
-
+       
           
   
       
@@ -123,6 +185,7 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
         print("******************************${Cokiler[0].toString()}");
        }
     */
+    
        
       
       // ! Exprades date - final expiresDate = DateTime.now().add(Duration(days: 3)).millisecondsSinceEpoch; 
@@ -139,6 +202,7 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
                       
                       key: webViewKey,
                       initialUrlRequest: URLRequest(url: Uri.parse("https://www.instagram.com/accounts/login/")),
+                      
                       initialOptions: options,
                       pullToRefreshController: pullToRefreshController,
                       onWebViewCreated: (controller) async {
@@ -149,24 +213,13 @@ class _InstagramLoginPageState extends State<InstagramLoginPage> {
                       onLoadStart: (controller, url) async {
                         
                         setState(() {
-                          this.url = url.toString();
-                          urlController.text = this.url;
-                          
+                          this.url = url.toString();  
+                          urlController.text = this.url;                   
                         });
                         //print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!url = $url");
-                        
-                        
-                        if(url.toString().endsWith("https://www.instagram.com/accounts/onetap/?next=%2F")){
+                        if(url.toString().endsWith("https://www.instagram.com/")){                  
                           setCookiess();
-                        }
-                        if(url.toString().endsWith("https://www.instagram.com/")){
-                          
-                          setCookiess();
-                          SharedPreferences pref =await SharedPreferences.getInstance();
-                          var sessionid = pref.setString("sessionid", Cokiler[0]);
-                          var csrftoken = pref.setString("csrftoken", Cokiler[1]);
-                          var ds_user_id = pref.setString("ds_user_id", Cokiler[2]);
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => YapildiPage(cookies: Cokiler)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => YapildiPage()));
                           
                           //Navigator.push(context, MaterialPageRoute(builder: (context) => YapildiPage()));
                         }

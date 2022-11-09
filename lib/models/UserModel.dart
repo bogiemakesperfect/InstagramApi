@@ -14,8 +14,8 @@ class Ney {
         required this.status,
     });
 
-    User ?user;
-    String ?status;
+    User user;
+    String status;
 
     factory Ney.fromJson(Map<String, dynamic> json) => Ney(
         user: User.fromJson(json["user"]),
@@ -23,7 +23,7 @@ class Ney {
     );
 
     Map<String, dynamic> toJson() => {
-        "user": user?.toJson(),
+        "user": user.toJson(),
         "status": status,
     };
 }
